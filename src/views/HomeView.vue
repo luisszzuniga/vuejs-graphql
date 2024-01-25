@@ -1,8 +1,8 @@
 <script setup>
 import gql from 'graphql-tag'
-import { useQuery, useMutation } from '@vue/apollo-composable'
+import { useQuery, useMutation, useSubscription } from '@vue/apollo-composable'
 import Loading from '@/components/Loading.vue';
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const VEHICLES_QUERY = gql`
   query {
@@ -23,6 +23,20 @@ const VEHICLE_MUTATION = gql`
     }
 `;
 const { mutate } = useMutation(VEHICLE_MUTATION);
+
+const VEHILCE_SUBSCRIPTION = gql`
+  subscription VehicleChange {
+    vehicleChange {
+      id
+      immatriculation
+    }
+  }
+`;
+const { subResult } = useSubscription(VEHILCE_SUBSCRIPTION);
+watch(subResult, (newValue) => {
+  console.log(newValue);
+  result.value.vehicles = newValue.vehicleChange;
+});
 
 const editVehicle = ref(null);
 const editVehicleForm = ref({
