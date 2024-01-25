@@ -13,6 +13,10 @@ const VEHICLES_QUERY = gql`
   }
 `;
 const { result, loading, error } = useQuery(VEHICLES_QUERY);
+const vehicles = ref([]);
+watch(result, (newValue) => {
+  vehicles.value = newValue.vehicles;
+});
 
 const VEHICLE_MUTATION = gql`
   mutation UpdateVehicle($id: Int!, $immatriculation: String!){
@@ -32,10 +36,9 @@ const VEHILCE_SUBSCRIPTION = gql`
     }
   }
 `;
-const { subResult } = useSubscription(VEHILCE_SUBSCRIPTION);
-watch(subResult, (newValue) => {
-  console.log(newValue);
-  result.value.vehicles = newValue.vehicleChange;
+const { result: subscriptionResult } = useSubscription(VEHILCE_SUBSCRIPTION);
+watch(subscriptionResult, (newValue) => {
+  vehicles.value = newValue.vehicleChange;
 });
 
 const editVehicle = ref(null);
@@ -74,7 +77,7 @@ const submit = () => {
         <th>Actions</th>
       </thead>
       <tbody>
-        <tr v-for="vehicle in result.vehicles" :key="vehicle.id">
+        <tr v-for="vehicle in vehicles" :key="vehicle.id">
           <td>{{ vehicle.id }}</td>
           <td>{{ vehicle.immatriculation }}</td>
           <td>
